@@ -1,0 +1,37 @@
+.headertron{
+    background-color: #eee;
+    padding-top:10px;
+    padding-bottom:20px;
+    margin-top:-20px;
+    margin-bottom:20px;
+}
+
+
+.form-pane{
+    padding-top:20px;
+}
+
+/*
+.lead {
+margin-bottom: 10px;
+font-size: 16px;
+font-weight: 200;
+line-height: 1.2;
+}
+*/
+
+textarea {
+    resize: none;
+}
+
+.form-pane {
+    font-size:16px;
+}
+
+
+
+
+
+
+
+

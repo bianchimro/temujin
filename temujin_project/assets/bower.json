@@ -1,0 +1,14 @@
+{
+  "name": "temujin",
+  "version": "0.0.1",
+  "dependencies": {
+    "bootstrap": "~3.0.3",
+    "jquery": "1.10",
+    "underscore": "~1.5.2",
+    "modernizr": "~2.7.1",
+    "json2": "*",
+    "angular": "~1.2.8",
+    "respond": "~1.4.2",
+    "html5shiv": "~3.7.0"
+  }
+}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+    <h2>Hey there Temujin is alive    </h2>
+
+    <div>
+        <input type="text" id="start-url">
+        <button id="do-it">Do it</button>
+    </div>
+    <div id="images-fun">
+        
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script src="{{ STATIC_URL }}js/temujin.js"></script>
+
+<script>
+
+    testImage = 'http://photosen.com/wp-content/uploads/2012/03/Beautiful-Sky.jpg';
+
+    
+
+
+    temujin.describeOp('/process/image_filter/')
+        .then(function(data){
+            console.log("description", data);
+        });
+
+    
+    var doTheFun = function(){
+    temujin.getNs('dragon').then(function(ns){
+
+        /*
+        temujin.executeOp(
+            '/process/image_filter/', 
+            ns.uuid, 
+            {
+                'image_url' : testImage,
+                'filter' : 'BLUR',
+                'out_filename' : 'x_blur.jpg',
+
+            })
+        
+        .then(function(data){
+            console.log("result", data);
+        
+        });
+
+
+
+        temujin.executeOp(
+            '/process/image_filter/', 
+            ns.uuid, 
+            {
+                'image_url' : testImage,
+                'filter' : 'EMBOSS',
+                'out_filename' : 'x_emboss.jpg',
+
+        })
+        .then(function(data){
+            console.log("result", data);
+        
+        });
+        */ 
+
+        var imgUrl = $("#start-url").val();
+        if(!imgUrl) return;
+
+
+        _.each(["BLUR", "EMBOSS", "FIND_EDGES", "CONTOUR", "DETAIL"],
+            function(item){
+                temujin.executeOp(
+            '/process/image_filter/', 
+            ns.uuid, 
+            {
+                'image_url' : imgUrl,
+                'filter' : item,
+                'out_filename' : 'x___' + item+ '.jpg',
+
+            })
+        
+            .then(function(data){
+                console.log("result "+item, data);
+                var img = $("<img/>")
+                img.attr('src', data.image_url).attr("width", "200");
+                $("#images-fun").append(img);
+
+                
+        
+            });
+
+
+
+        });
+
+
+
+    });
+    
+    };
+
+    $("#start-url").val(testImage);
+    $("#do-it").on('click', doTheFun)
+
+    /*
+    
+
+    */
+
+
+
+
+
+</script>
+
+{% endblock %}
