@@ -41,6 +41,10 @@ var temujin = {};
     };
 
 
+
+
+
+
     temujin.Provider = function(baseUrl){
         var self = this;
         self.baseUrl = baseUrl;
@@ -48,9 +52,11 @@ var temujin = {};
 
     };
 
+    
     temujin.provider = function(baseUrl){
         return new temujin.Provider(baseUrl);
     };
+
 
 
     temujin.Process = function(url){
@@ -67,7 +73,7 @@ var temujin = {};
 
         
 
-        self.param = function(name, value){
+        self.parameter = function(name, value){
             if(buckets.isUndefined(value)){
                 return self.params[name];
             } else {
@@ -76,10 +82,26 @@ var temujin = {};
             }
         };
 
+
         self.run = function(){
 
-        };
+            var data = $.extend(true, {}, self.params );
+            $.extend(data, self.inputs);
 
+            //using the deferred api, preparing for async
+            var dfd = new jQuery.Deferred();
+
+            $.ajax({
+                method:'post',
+                url : self.url,
+                data : data,
+            }).then(function(data){
+                dfd.resolve(data);
+            });
+
+            return dfd.promise();
+
+        };
 
         
         return self;
