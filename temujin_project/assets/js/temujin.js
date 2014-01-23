@@ -40,6 +40,58 @@ var temujin = {};
         });
     };
 
+
+    temujin.Provider = function(baseUrl){
+        var self = this;
+        self.baseUrl = baseUrl;
+        return self;
+
+    };
+
+    temujin.provider = function(baseUrl){
+        return new temujin.Provider(baseUrl);
+    };
+
+
+    temujin.Process = function(url){
+        var self = this;
+
+        self.url = url;
+        self.params = {};
+        self.inputs = {};
+        self.descriptor = null;
+
+        self.getDescriptor = function(){
+            return $.get(self.url);
+        };
+
+        
+
+        self.param = function(name, value){
+            if(buckets.isUndefined(value)){
+                return self.params[name];
+            } else {
+                self.params[name] = value;
+                return self;
+            }
+        };
+
+        self.run = function(){
+
+        };
+
+
+        
+        return self;
+    };
+
+
+    temujin.process = function(options){
+        return new temujin.Process(options);
+    };
+
+
+
     
 
 

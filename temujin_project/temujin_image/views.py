@@ -11,31 +11,26 @@ from django.conf import settings
 BASE_FILE_PATH =settings.TEMUJIN_BASE_FILE_PATH
 
 
-def get_file_resource(ns, name=None, extension=None):
-    oid = generate_oid()
-    if not name:
-        filename = oid + "." + extension
-    else:
-        filename = name
-
+#TODO:ns should be automatic
+def get_file_resource(name):
+    out = {}
+    ns = 'x'
     target_path = os.path.join(BASE_FILE_PATH, ns)
     if not os.path.isdir(target_path):
         os.mkdir(target_path)
-
-    out = {}
-    out['filename'] = os.path.join(target_path, filename)
-    out['url'] = reverse('temujin_serve_file', kwargs={'ns':ns, 'filename':filename})
+    out['filename'] = os.path.join(target_path, name)
+    out['url'] = reverse('temujin_serve_file', kwargs={'ns':ns, 'filename':name})
     return out
 
 
 
-def proc_image_example(source_url, filter, namespace, name=None):
+def proc_image_example(source_url, filter, name):
     image_file = cStringIO.StringIO(urllib.urlopen(source_url).read())
     img = Image.open(image_file)
     
     func = getattr(ImageFilter, filter)
     img = img.filter(func)
-    destination = get_file_resource(namespace, name=name, extension="jpg")
+    destination = get_file_resource(name)
     img.save(destination['filename'])
     return destination['url']
 
@@ -50,7 +45,7 @@ class ImageFilterView(BaseProcessView):
     inputs = {'image_url' : { 'type' : 'uri' }}
     outputs = {'image_url' : { 'type' : 'uri' }}
     parameters = { 
-        'out_filename' : { 'type' : 'string', 'required' : False },
+        'out_filename' : { 'type' : 'string', 'required' : True },
         'filter' : { 'type' : 'string', 'required' : True }
     }
 
@@ -59,11 +54,12 @@ class ImageFilterView(BaseProcessView):
         image_url  = self.get_post_item('image_url')
         return image_url
 
-    def get_result(self, request, namespace, inputs, parameters):
+
+    def get_result(self, request, inputs, parameters):
         out = {}
 
         source_url = inputs['image_url']
-        out_url = proc_image_example(source_url, parameters['filter'], namespace, name=parameters['out_filename'])
+        out_url = proc_image_example(source_url, parameters['filter'], parameters['out_filename'])
         
         #todo: this should be done by a worker.
         out['image_url'] = out_url

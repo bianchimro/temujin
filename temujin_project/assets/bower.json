@@ -9,6 +9,7 @@
     "json2": "*",
     "angular": "~1.2.8",
     "respond": "~1.4.2",
-    "html5shiv": "~3.7.0"
+    "html5shiv": "~3.7.0",
+    "buckets": "https://github.com/mauriciosantos/buckets.git"
   }
 }

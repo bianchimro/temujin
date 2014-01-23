@@ -55,15 +55,6 @@ class BaseProcessView(View):
         return self.process(request, *args, **kwargs)
 
 
-    def get_namespace(self, request):
-        ns = self.request.POST.get('__namespace__', None)
-        if not ns:
-            namespace = NameSpace.objects.create()
-        else:
-            namespace = NameSpace.objects.get(uuid=ns)
-
-        return namespace.uuid
-
 
     def get_parameters(self, request):
         out = {}
@@ -88,15 +79,14 @@ class BaseProcessView(View):
         return out
 
     
-    def get_result(self, namespace, inputs, parameters):
+    def get_result(self, inputs, parameters):
         raise NotImplementedError
 
 
     def process(self, request, *args, **kwargs):
         parameters = self.get_parameters(request)
         inputs = self.get_inputs(request)
-        namespace = self.get_namespace(request)
-        result = self.get_result(request, namespace, inputs, parameters)
+        result = self.get_result(request, inputs, parameters)
         return self.render_result(result)
     
     
@@ -127,14 +117,6 @@ class BaseProcessView(View):
         return HttpResponse(data, **response_kwargs)
 
 
-from django.conf.urls import patterns, url
-
-
-def register_process_view(viewClass, name):
-
-    view_url = url(r'^process/'+ name + r"/$", viewClass.as_view(), name="process_%s" % name )
-
-    return patterns('', view_url)
 
 
 from django.conf import settings
