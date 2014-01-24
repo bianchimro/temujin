@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+    <h2>Test2</h2>
+
+    
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script src="{{ STATIC_URL }}js/temujin.js"></script>
+
+<script>
+    
+    var testImage = 'http://photosen.com/wp-content/uploads/2012/03/Beautiful-Sky.jpg';
+
+    var p1 = temujin.Process('/process/image_filter/')
+        .parameter('filter', 'EMBOSS')
+        .parameter('image_url', testImage)
+        .parameter('out_filename', 'o.jpg')
+        .run()
+        .then(function(data){
+            console.log("d", data);
+        });
+
+
+
+</script>
+
+{% endblock %}
