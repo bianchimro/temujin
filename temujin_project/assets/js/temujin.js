@@ -13,6 +13,9 @@ var temujin = {};
     'use strict';
 
 
+    temujin.watching = false;
+
+
     temujin.getNs = function(name){
         return $.ajax({
             method:'post',
@@ -41,7 +44,42 @@ var temujin = {};
     };
 
 
+    temujin.publish = function(topic, data){ 
+        //console.log("ehy, got it", topic, data)
+        return pubsub.publish(topic, data);
 
+    };
+    temujin.subscribe = function(topic, callback){ 
+        return pubsub.subscribe(topic, function(topic, args){
+            callback(args); 
+        });
+    };
+    
+
+
+    temujin.watch = function(){
+        if (temujin.watching){return;}
+        var ws = new WebSocket('ws://localhost:8000/ws/temujin_results?subscribe-broadcast&publish-broadcast');
+        ws.onopen = function() {
+            console.log("websocket connected");
+        };
+        ws.onmessage = function(e) {
+            console.log("Received: " + e.data);
+            var jsonData = JSON.parse(e.data);
+            if(jsonData.token){
+                console.log("received token publishing")
+                setTimeout(function(){
+                temujin.publish(jsonData.token, jsonData);
+                }, 2000);
+            }
+        };
+        ws.onerror = function(e) {
+            console.error(e);
+        };
+        ws.onclose = function(e) {
+            console.log("connection closed");
+        }
+    };
 
 
 
@@ -96,7 +134,18 @@ var temujin = {};
                 url : self.url,
                 data : data,
             }).then(function(data){
-                dfd.resolve(data);
+                var token = data.token;
+                token = token;
+                //console.log("got token", token, data);
+                var r = temujin.subscribe(token, function(wsData){
+                    console.log("sub")
+                    dfd.resolve(wsData);    
+                    pubsub.unsubscribe(r);
+                
+                })
+                //console.log("r", r)
+
+                
             });
 
             return dfd.promise();
@@ -115,7 +164,7 @@ var temujin = {};
 
 
     
-
+    temujin.watch();
 
 
 

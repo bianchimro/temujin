@@ -39,6 +39,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'debug_toolbar',
 
+    'ws4redis',
+
     'temujin_core',
     'temujin_image',
 
@@ -107,6 +109,12 @@ TEMPLATE_DIRS = (
 
 
 ###
-
-
 TEMUJIN_BASE_FILE_PATH = os.path.join(BASE_DIR, 'file_bucket')
+
+
+#websocket stuff
+WEBSOCKET_URL = '/ws/'
+WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+
+
+BROKER_URL = 'redis://localhost:6379/0'

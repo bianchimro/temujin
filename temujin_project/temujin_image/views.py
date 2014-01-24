@@ -11,31 +11,10 @@ from django.conf import settings
 BASE_FILE_PATH =settings.TEMUJIN_BASE_FILE_PATH
 
 
-#TODO:ns should be automatic
-def get_file_resource(name):
-    out = {}
-    ns = 'x'
-    target_path = os.path.join(BASE_FILE_PATH, ns)
-    if not os.path.isdir(target_path):
-        os.mkdir(target_path)
-    out['filename'] = os.path.join(target_path, name)
-    out['url'] = reverse('temujin_serve_file', kwargs={'ns':ns, 'filename':name})
-    return out
+from temujin_core import websockets
 
 
-
-def proc_image_example(source_url, filter, name):
-    image_file = cStringIO.StringIO(urllib.urlopen(source_url).read())
-    img = Image.open(image_file)
-    
-    func = getattr(ImageFilter, filter)
-    img = img.filter(func)
-    destination = get_file_resource(name)
-    img.save(destination['filename'])
-    return destination['url']
-
-
-
+from .tasks import process_image_test
 
 class ImageFilterView(BaseProcessView):
     """
@@ -50,6 +29,7 @@ class ImageFilterView(BaseProcessView):
     }
 
 
+    #dummy example of custom getter
     def get_input_image_url(self, request):
         image_url  = self.get_post_item('image_url')
         return image_url
@@ -59,11 +39,9 @@ class ImageFilterView(BaseProcessView):
         out = {}
 
         source_url = inputs['image_url']
-        out_url = proc_image_example(source_url, parameters['filter'], parameters['out_filename'])
+        token = process_image_test.delay(source_url, parameters['filter'], parameters['out_filename'])
+        out['token'] = str(token)
         
-        #todo: this should be done by a worker.
-        out['image_url'] = out_url
-
         return out
 
 
