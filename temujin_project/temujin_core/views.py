@@ -51,8 +51,10 @@ class BaseProcessView(View):
 
 
     def post(self, request, *args, **kwargs):
-        print "uuuuu"
-        return self.process(request, *args, **kwargs)
+        try:
+            return self.process(request, *args, **kwargs)
+        except Exception, e:
+            return self.render_error(str(e))
 
 
 
@@ -60,7 +62,6 @@ class BaseProcessView(View):
 
         out = {}
         for arg in self.arguments:
-            print "a", arg
             getter = getattr(self, 'get_arg_' + arg, None)
             if getter is not None:
                 out[arg] = getter(request)
@@ -75,7 +76,6 @@ class BaseProcessView(View):
                 else:
                     raise ValueError("Missing argument %s" % arg)
 
-        print out
         return out
 
     
@@ -88,7 +88,7 @@ class BaseProcessView(View):
         arguments = self.get_args(request)
         result = self.get_result(request, arguments)
         return self.render_result(result)
-    
+
     
     def get_descriptor(self):
         descriptor = {}
@@ -115,7 +115,13 @@ class BaseProcessView(View):
         response_kwargs['content_type'] = 'application/json'
         return HttpResponse(data, **response_kwargs)
 
-
+    def render_error(self, error_string):
+        error = {'error' : error_string }
+        data = json.dumps(error, cls=DjangoJSONEncoder)
+        response_kwargs = {}
+        response_kwargs['content_type'] = 'application/json'
+        response_kwargs['status'] = 500
+        return HttpResponse(data, **response_kwargs)
 
 class BaseTaskView(BaseProcessView):
     """

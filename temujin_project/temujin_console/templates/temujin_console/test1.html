@@ -5,6 +5,7 @@
     <h2>Test1</h2>
     Should run auto. Response here
     <div id="result-json" style="height:100px; background:#ccc;"></div>
+    <div id="errors-json" style="height:100px; background:magenta;"></div>
 
     
 </div>
@@ -22,13 +23,30 @@
     var testImage = 'http://photosen.com/wp-content/uploads/2012/03/Beautiful-Sky.jpg';
 
     var p1 = temujin.Process('/process/image_filter/')
-        .arg('filter_name', 'EMBOSS')
+        .arg('filter_name', 'EMBOSSNO!!!')
         .arg('source_url', testImage)
-        .arg('out_filename', 'o.jpg')
+        .arg('out_filename', 'o.jpg');
+
+    p1.run()
+        .then(function(data){
+            console.log("d", data);
+            $("#result-json").text(JSON.stringify(data));
+        })
+        .fail(function(data){
+            console.log("d", data);
+            $("#errors-json").text(JSON.stringify(data));  
+        });
+
+    //fixing it
+    p1.arg('filter_name' , 'EMBOSS')
         .run()
         .then(function(data){
             console.log("d", data);
             $("#result-json").text(JSON.stringify(data));
+        })
+        .fail(function(data){
+            console.log("d", data);
+            $("#errors-json").text(JSON.stringify(data));  
         });
 
 

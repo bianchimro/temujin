@@ -28,6 +28,8 @@ BASE_FILE_PATH =settings.TEMUJIN_BASE_FILE_PATH
 
 
 from temujin_core import websockets
+from temujin_core.task_helpers import WebSocketExceptionTask
+
 
 
 #TODO:ns should be automatic
@@ -54,10 +56,9 @@ def proc_image_example(source_url, filter_name, name):
 
 
 
-@task(bind=True)
+@task(bind=True, base=WebSocketExceptionTask)
 def process_image_test(self, source_url, filter_name, name):
     out = {}
     out['token'] = str(self.request.id)
     out['url'] = proc_image_example(source_url, filter_name, name)
-    websockets.publish_result_message(out)
     return out

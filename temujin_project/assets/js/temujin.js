@@ -55,6 +55,24 @@ var temujin = {};
             callback(args); 
         });
     };
+
+
+    // not used right now
+    temujin.subscribeDeferred = function(topic){
+        var dfd = new jQuery.Deferred();
+
+        pubsub.subscribe(topic, function(topic, args){
+            dfd.resolve(args);
+            //callback(args); 
+        });
+
+        return dfd.promise();
+
+
+    }; 
+
+
+
     
 
 
@@ -105,6 +123,10 @@ var temujin = {};
         self.args = {};
         self.descriptor = null;
 
+        self.token = null;
+        self.status = null;
+        self.errors = [];
+
         self.getDescriptor = function(){
             return $.get(self.url);
         };
@@ -136,16 +158,25 @@ var temujin = {};
             }).then(function(data){
                 var token = data.token;
                 token = token;
+                self.token = token;
+                self.errors = [];
                 //console.log("got token", token, data);
                 var r = temujin.subscribe(token, function(wsData){
-                    console.log("sub")
-                    dfd.resolve(wsData);    
+                    console.log("sub", wsData)
+                    if(!wsData.error){
+                        dfd.resolve(wsData);        
+                    } else {
+                        dfd.reject(wsData)
+                        self.errors.push(wsData)
+                    }
+                    
                     pubsub.unsubscribe(r);
-                
                 })
                 //console.log("r", r)
-
-                
+            }).fail(function(o){
+                var data = o.responseJSON;
+                self.errors.push(data);
+                dfd.reject(data);
             });
 
             return dfd.promise();
