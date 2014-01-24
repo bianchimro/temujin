@@ -40,9 +40,8 @@ class BaseProcessView(View):
 
     http_method_names = ['get', 'post', 'options']
     
-    inputs = {}
+    arguments = {}
     outputs = {}
-    parameters = {}
 
     def get(self, request, *args, **kwargs):
         """
@@ -52,54 +51,54 @@ class BaseProcessView(View):
 
 
     def post(self, request, *args, **kwargs):
+        print "uuuuu"
         return self.process(request, *args, **kwargs)
 
 
 
-    def get_parameters(self, request):
-        out = {}
-        for parameter in self.parameters:
-            try:
-                out[parameter] = self.get_post_item(parameter)
-            except:
-                if 'required' in self.parameters[parameter] and not self.parameters[parameter]['required']:
-                    out[parameter] = None 
-                else:
-                    raise ValueError("Missing parameter %s" % parameter)
-        return out
+    def get_args(self, request):
 
-    def get_inputs(self, request):
         out = {}
-        for inputname in self.inputs:
-            getter = getattr(self, 'get_input_' + inputname, None)
+        for arg in self.arguments:
+            print "a", arg
+            getter = getattr(self, 'get_arg_' + arg, None)
             if getter is not None:
-                out[inputname] = getter(request)
+                out[arg] = getter(request)
             else:
-                out[inputname] = self.get_post_item(inputname)
+                out[arg] = self.get_post_item(arg)
+            
+            if out[arg] is not None:
+                continue
+            else:
+                if 'required' in self.arguments[arg] and not self.arguments[arg]['required']:
+                    out[arg] = None 
+                else:
+                    raise ValueError("Missing argument %s" % arg)
+
+        print out
         return out
 
     
-    def get_result(self, inputs, parameters):
+    
+    def get_result(self, args):
         raise NotImplementedError
 
 
     def process(self, request, *args, **kwargs):
-        parameters = self.get_parameters(request)
-        inputs = self.get_inputs(request)
-        result = self.get_result(request, inputs, parameters)
+        arguments = self.get_args(request)
+        result = self.get_result(request, arguments)
         return self.render_result(result)
     
     
     def get_descriptor(self):
         descriptor = {}
-        descriptor['parameters'] = self.parameters
-        descriptor['inputs'] = self.inputs
+        descriptor['args'] = self.arguments
         descriptor['outputs'] = self.outputs
         return descriptor
 
     
-    def get_post_item(self, parameter):
-        return self.request.POST.get(parameter)
+    def get_post_item(self, arg):
+        return self.request.POST.get(arg)
 
 
 
@@ -118,7 +117,44 @@ class BaseProcessView(View):
 
 
 
+class BaseTaskView(BaseProcessView):
+    """
+    this view turns an image into a bw one
+    """
 
+    #a celery task
+    task = None
+    #a list of task_arguments (from self.arguments)
+    task_arguments = []
+    #a list of task_kwarguments (from self.arguments)
+    task_kwarguments = {}
+
+
+    def get_result(self, request, args):
+        if not self.task:
+            raise ValueError("BaseTaskView has no task")
+        out = {}
+        #build up arguments
+        t_args = []
+        for task_arg in self.task_arguments:
+            t_args.append(args[task_arg])
+
+        t_kwargs = {}
+        for task_kwarg in self.task_kwarguments:
+            t_kwargs[task_kwarg] = args[task_kwarg]
+
+
+        token = self.task.delay(*t_args, **t_kwargs)
+        out['token'] = str(token)
+        
+        return out
+
+
+
+
+
+
+######TODO: MOVE AWAY!
 from django.conf import settings
 BASE_FILE_PATH =settings.TEMUJIN_BASE_FILE_PATH
 

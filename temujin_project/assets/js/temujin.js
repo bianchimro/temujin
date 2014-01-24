@@ -31,6 +31,7 @@ var temujin = {};
 
     };
     
+    //TODO:remove
     temujin.executeOp = function(url, ns, data){
 
         data = data || {};
@@ -101,8 +102,7 @@ var temujin = {};
         var self = this;
 
         self.url = url;
-        self.params = {};
-        self.inputs = {};
+        self.args = {};
         self.descriptor = null;
 
         self.getDescriptor = function(){
@@ -111,11 +111,11 @@ var temujin = {};
 
         
 
-        self.parameter = function(name, value){
+        self.arg = function(name, value){
             if(buckets.isUndefined(value)){
-                return self.params[name];
+                return self.args[name];
             } else {
-                self.params[name] = value;
+                self.args[name] = value;
                 return self;
             }
         };
@@ -123,9 +123,9 @@ var temujin = {};
 
         self.run = function(){
 
-            var data = $.extend(true, {}, self.params );
-            $.extend(data, self.inputs);
-
+            var data = $.extend(true, {}, self.args );
+            console.log("eee", self.args)
+            
             //using the deferred api, preparing for async
             var dfd = new jQuery.Deferred();
 

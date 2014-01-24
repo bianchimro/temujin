@@ -1,6 +1,6 @@
 import urllib, cStringIO
 import os
-from temujin_core.views import BaseProcessView
+from temujin_core.views import BaseProcessView, BaseTaskView
 
 from temujin_core.helpers import generate_oid
 
@@ -21,25 +21,23 @@ class ImageFilterView(BaseProcessView):
     this view turns an image into a bw one
     """
 
-    inputs = {'image_url' : { 'type' : 'uri' }}
     outputs = {'image_url' : { 'type' : 'uri' }}
-    parameters = { 
+    arguments = { 
+        'source_url' : { 'type' : 'uri' },
         'out_filename' : { 'type' : 'string', 'required' : True },
-        'filter' : { 'type' : 'string', 'required' : True }
+        'filter_name' : { 'type' : 'string', 'required' : True }
     }
 
 
     #dummy example of custom getter
-    def get_input_image_url(self, request):
-        image_url  = self.get_post_item('image_url')
+    def get_arg_image_url(self, request):
+        image_url  = self.get_post_item('source_url')
         return image_url
 
 
-    def get_result(self, request, inputs, parameters):
+    def get_result(self, request, args):
         out = {}
-
-        source_url = inputs['image_url']
-        token = process_image_test.delay(source_url, parameters['filter'], parameters['out_filename'])
+        token = process_image_test.delay(args['source_url'], args['filter_name'], args['out_filename'])
         out['token'] = str(token)
         
         return out
@@ -47,4 +45,13 @@ class ImageFilterView(BaseProcessView):
 
 
 
-
+#the same as above, simpler :)
+class ImageFilterViewSimpler(BaseTaskView):
+    outputs = {'image_url' : { 'type' : 'uri' }}
+    arguments = { 
+        'source_url' : { 'type' : 'uri' },
+        'out_filename' : { 'type' : 'string', 'required' : True },
+        'filter_name' : { 'type' : 'string', 'required' : True }
+    }
+    task = process_image_test
+    task_arguments = ['source_url', 'filter_name', 'out_filename']

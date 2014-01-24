@@ -2,9 +2,9 @@
 {% block content %}
 
 <div class="container">
-    <h2>Test1</h2>
-    Should run auto. Response here
-    <div id="result-json" style="height:100px; background:#ccc;"></div>
+    <h2>Test2</h2>
+    <img src="" alt="" id="first">
+    <img src="" alt="" id="second">
 
     
 </div>
@@ -24,11 +24,23 @@
     var p1 = temujin.Process('/process/image_filter/')
         .arg('filter_name', 'EMBOSS')
         .arg('source_url', testImage)
-        .arg('out_filename', 'o.jpg')
+        .arg('out_filename', 'o.jpg');
+
+
+        p1
         .run()
         .then(function(data){
             console.log("d", data);
-            $("#result-json").text(JSON.stringify(data));
+            $("#first").attr('src', data.url)
+        });
+
+        p1
+        .arg('filter_name', 'BLUR')
+        .arg('out_filename', 'o2.jpg')
+        .run()
+        .then(function(data){
+            console.log("d2", data);
+            $("#second").attr('src', data.url)
         });
 
 

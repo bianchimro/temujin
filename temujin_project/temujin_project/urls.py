@@ -17,7 +17,7 @@ urlpatterns = patterns('',
 
 
 from temujin_core.register import register_process_view
-from temujin_image.views import ImageFilterView
+from temujin_image.views import ImageFilterView, ImageFilterViewSimpler
 
-urlpatterns += register_process_view(ImageFilterView, 'image_filter')
-
+urlpatterns += register_process_view(ImageFilterView, 'image_filter');
+urlpatterns += register_process_view(ImageFilterViewSimpler, 'image_filter_simpler');
