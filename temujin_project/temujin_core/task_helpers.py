@@ -8,7 +8,8 @@ class WebSocketExceptionTask(Task):
     
     def on_success(self, retval, task_id, args, kwargs):
         out = {}
-        out.update(retval)
+        out['result'] = retval
+        out['state'] = 'success'
         out['token'] = task_id
         websockets.publish_result_message(out)
         
@@ -16,7 +17,7 @@ class WebSocketExceptionTask(Task):
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         msg = { 
                 'token' : task_id,
-                'error' : str(einfo.exception),
-                'traceback' : str(einfo.traceback),
+                'error' : { 'exception' : str(einfo.exception), 'traceback' : str(einfo.traceback)},
+                'state' : 'error'
               }
         websockets.publish_result_message(msg)

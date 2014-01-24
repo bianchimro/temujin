@@ -21,27 +21,32 @@
     
     var testImage = 'http://photosen.com/wp-content/uploads/2012/03/Beautiful-Sky.jpg';
 
-    var p1 = temujin.Process('/process/image_filter/')
+    var p1 = temujin.process('/process/image_filter/')
         .arg('filter_name', 'EMBOSS')
         .arg('source_url', testImage)
         .arg('out_filename', 'o.jpg');
 
-
-        p1
-        .run()
-        .then(function(data){
-            console.log("d", data);
-            $("#first").attr('src', data.url)
+        p1.on('success', function(ctx, data){
+            console.log("xxx", ctx, data);
         });
 
+        //registering callback with run deferred api
         p1
+        .run().then(function(data){
+            $("#first").attr('src', data.url);
+        });
+
+    var p2 = temujin.process('/process/image_filter/');
+        p2
+        .arg('source_url', testImage)
         .arg('filter_name', 'BLUR')
         .arg('out_filename', 'o2.jpg')
-        .run()
-        .then(function(data){
-            console.log("d2", data);
-            $("#second").attr('src', data.url)
-        });
+        //registering success callback on success state change
+        .on('success', function(data){
+            console.log("d2", data.token);
+            $("#second").attr('src', data.result.url)
+        })
+        .run();
 
 
 

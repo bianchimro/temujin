@@ -116,12 +116,52 @@ var temujin = {};
 
 
 
-    temujin.Process = function(url){
+    temujin.Event = function Event(){
+
+        var self = this;
+        this._callbacks = {};
+
+        self.on = function(key, callback){
+            //register callbacks
+            self._callbacks[key] = self._callbacks[key] || [];
+            self._callbacks[key].push(callback);
+            return this;
+        };
+
+        self.off = function(key){
+            delete self._callbacks[key];
+        };
+
+
+        self.trigger = function(key, data){
+            //call all callbacks
+            var that = this;
+            var callbacks = self._callbacks[key]
+            if(!callbacks){return;}
+            for(var i=0,n=callbacks.length;i<n;i++){
+                var cb = callbacks[i];
+
+                setTimeout(function(){
+                    cb(that, data);    
+                },0)
+            }
+
+        };
+
+
+    };
+
+
+
+
+    temujin.Process = function Process(url){
         var self = this;
 
         self.url = url;
         self.args = {};
         self.descriptor = null;
+        self.state = null;
+        self.result = null;
 
         self.token = null;
         self.status = null;
@@ -131,7 +171,23 @@ var temujin = {};
             return $.get(self.url);
         };
 
-        
+
+        self.update = function(values){
+            console.log("got an update!", values)
+            //#TODO check a listo of possible states
+            if(!values.state){
+                return;
+            }
+            self.result = values.result || null;
+            self.token = values.token || null;
+
+
+            if(values.state){
+                self.trigger(values.state);
+            }
+
+        };
+
 
         self.arg = function(name, value){
             if(buckets.isUndefined(value)){
@@ -146,7 +202,6 @@ var temujin = {};
         self.run = function(){
 
             var data = $.extend(true, {}, self.args );
-            console.log("eee", self.args)
             
             //using the deferred api, preparing for async
             var dfd = new jQuery.Deferred();
@@ -162,14 +217,14 @@ var temujin = {};
                 self.errors = [];
                 //console.log("got token", token, data);
                 var r = temujin.subscribe(token, function(wsData){
-                    console.log("sub", wsData)
+                    //console.log("sub", wsData)
+                    self.update(wsData);
                     if(!wsData.error){
-                        dfd.resolve(wsData);        
+                        dfd.resolve(wsData.result);        
                     } else {
-                        dfd.reject(wsData)
-                        self.errors.push(wsData)
+                        dfd.reject(wsData.error)
+                        self.errors.push(wsData.error)
                     }
-                    
                     pubsub.unsubscribe(r);
                 })
                 //console.log("r", r)
@@ -183,10 +238,21 @@ var temujin = {};
 
         };
 
+
+        /* OK this is crazy. set up better inheritance */
+        self._event = new temujin.Event();
+        self.on = self._event.on;
+        self.off = self._event.off;
+        self.trigger = self._event.trigger;
         
-        return self;
     };
 
+    //temujin.Process.prototype = temujin.Event.prototype;
+
+
+    
+
+    
 
     temujin.process = function(options){
         return new temujin.Process(options);
