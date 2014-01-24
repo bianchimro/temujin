@@ -3,7 +3,6 @@ import websockets
 
 class WebSocketExceptionTask(Task):
     abstract = True
-
     #def after_return(self, *args, **kwargs):
     #    print 'x!!!!!!!!!!!!!!!Task returned: {0!r}'.format(self.request)
     

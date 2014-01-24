@@ -43,6 +43,7 @@ INSTALLED_APPS = (
 
     'temujin_core',
     'temujin_image',
+    'temujin_file',
 
     'temujin_console',
 
