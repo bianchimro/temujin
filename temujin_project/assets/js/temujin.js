@@ -13,7 +13,22 @@ var temujin = {};
     'use strict';
 
 
+    //base properties
+    //#TODO: refactor and see if useful
+    temujin.baseUrl = '/';
+
+
+    //processes watcher. now is with websocket
+    //#todo: wrap in obj, abstract/make api
     temujin.watching = false;
+
+
+
+
+    temujin.getProcessUrl = function(options){
+        options = options || {};
+        return temujin.baseUrl + "process/" + options.name + "/";
+    };
 
 
     temujin.getNs = function(name){
@@ -154,10 +169,25 @@ var temujin = {};
 
 
 
-    temujin.Process = function Process(url){
-        var self = this;
+    temujin.Process = function Process(options){
 
-        self.url = url;
+        var self = this;
+        if(options.url){
+            self.url = options.url;    
+        } else{
+            if(options.name){
+                self.url = temujin.getProcessUrl(options);
+            }
+        }
+
+        if(!self.url){
+            throw { name:'Temujin process url error', 
+                    message:'You must give process an url or a name'
+            };
+        }
+
+        
+        
         self.args = {};
         self.descriptor = null;
         self.state = null;

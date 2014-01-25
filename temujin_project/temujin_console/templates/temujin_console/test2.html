@@ -3,8 +3,8 @@
 
 <div class="container">
     <h2>Test2</h2>
-    <img src="" alt="" id="first">
-    <img src="" alt="" id="second">
+    <img src="" alt="" id="first" height="300px">
+    <img src="" alt="" id="second" height="300px">
 
     
 </div>
@@ -21,7 +21,7 @@
     
     var testImage = 'http://photosen.com/wp-content/uploads/2012/03/Beautiful-Sky.jpg';
 
-    var p1 = temujin.process('/process/image_filter/')
+    var p1 = temujin.process({url:'/process/image_filter/'})
         .arg('filter_name', 'EMBOSS')
         .arg('source_url', testImage)
         .arg('out_filename', 'o.jpg');
@@ -36,12 +36,12 @@
             $("#first").attr('src', data.url);
         });
 
-    var p2 = temujin.process('/process/image_filter/');
+    var p2 = temujin.process({name:'image_filter'});
         p2
         .arg('source_url', testImage)
         .arg('filter_name', 'BLUR')
         .arg('out_filename', 'o2.jpg')
-        //registering success callback on success state change
+        //registering success callback on success state change EVENT
         .on('success', function(data){
             console.log("d2", data.token);
             $("#second").attr('src', data.result.url)
