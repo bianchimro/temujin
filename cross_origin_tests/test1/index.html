@@ -1,0 +1,79 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+
+</head>
+<body>
+    
+    <h2>Test1</h2>
+    Should run auto. Response here
+    <div id="result-json" style="height:100px; background:#ccc;"></div>
+    <div id="errors-json" style="height:100px; background:magenta;"></div>
+
+
+
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}lib/jquery/jquery.min.js"><\/script>')</script>
+
+    <script> window.JSON || document.write('<script src="{{ STATIC_URL }}lib/json2/json2.js"><\/script>')</script>
+
+    <!--<script src="{{ STATIC_URL }}lib/jqueryui/ui/minified/jquery-ui.min.js"></script>-->
+    <script src="http://localhost:8080/static/lib/underscore/underscore-min.js"></script>
+    <script src="http://localhost:8080/static/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="http://localhost:8080/static/lib/js-url/url.min.js"></script>
+
+    <script src="http://localhost:8080/static/lib/buckets/buckets-minified.js"></script>
+    <script src="http://localhost:8080/static/js/pubsub.js"></script>
+    <script src="http://localhost:8080/static/js/temujin.js"></script>
+
+    <script>
+    
+    var testImage = 'http://photosen.com/wp-content/uploads/2012/03/Beautiful-Sky.jpg';
+
+    temujin.baseUrl = 'http://localhost:8080';
+    temujin.crossOrigin = true;
+    temujin.watch();
+
+    var p1 = temujin.process({url:'http://localhost:8080/process/image_filter/'})
+        .arg('filter_name', 'EMBOSSNO!!!')
+        .arg('source_url', testImage)
+        .arg('out_filename', 'o.jpg');
+
+    p1.run()
+        .then(function(data){
+            console.log("d", data);
+            $("#result-json").text(JSON.stringify(data));
+        })
+        .fail(function(data){
+            console.log("d", data);
+            $("#errors-json").text(JSON.stringify(data));  
+        });
+
+    //fixing it
+    p1.arg('filter_name' , 'EMBOSS')
+        .run()
+        .then(function(data){
+            console.log("d", data);
+            $("#result-json").text(JSON.stringify(data));
+        })
+        .fail(function(data){
+            console.log("d", data);
+            $("#errors-json").text(JSON.stringify(data));  
+        });
+
+
+
+    </script>
+
+
+
+
+
+
+
+
+
+</body>
+</html>

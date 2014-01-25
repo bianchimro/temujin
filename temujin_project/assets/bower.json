@@ -10,6 +10,7 @@
     "angular": "~1.2.8",
     "respond": "~1.4.2",
     "html5shiv": "~3.7.0",
-    "buckets": "https://github.com/mauriciosantos/buckets.git"
+    "buckets": "https://github.com/mauriciosantos/buckets.git",
+    "js-url": "https://github.com/websanova/js-url.git#~1.8.6"
   }
 }

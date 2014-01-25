@@ -16,6 +16,8 @@ var temujin = {};
     //base properties
     //#TODO: refactor and see if useful
     temujin.baseUrl = '/';
+    //#todo: this should be process-wise...;
+    temujin.crossOrigin = false;
 
 
     //processes watcher. now is with websocket
@@ -23,6 +25,36 @@ var temujin = {};
     temujin.watching = false;
 
 
+    temujin.post = function(options){
+
+        var protocol = url('protocol');  // http
+        var port = url('port');  // http
+        var domain = url('domain');  // http
+
+        var protocolUrl = url('protocol', options.url);
+        var portUrl = url('port', options.url);
+        var domainUrl = url('domain', options.url);
+
+        var p1 = protocol+port+domain;
+        var p2 = protocolUrl+portUrl+domainUrl;
+
+
+        //console.log("d", p1, p2);
+        var baseOptions = { method : 'post'};
+        if(temujin.crossOrigin){
+            baseOptions.crossDomain = true;
+            baseOptions.dataType = 'JSON';
+            baseOptions.headers =  {"X-Requested-With": "XMLHttpRequest"};
+            /*
+            baseOptions.xhrFields = {
+                withCredentials: true
+            };
+            */
+        }
+        
+        $.extend(true, options, baseOptions);
+        return $.ajax(options);
+    };
 
 
     temujin.getProcessUrl = function(options){
@@ -93,7 +125,18 @@ var temujin = {};
 
     temujin.watch = function(){
         if (temujin.watching){return;}
-        var ws = new WebSocket('ws://localhost:8000/ws/temujin_results?subscribe-broadcast&publish-broadcast');
+
+        var wsUrl;
+        if(temujin.baseUrl == '' || temujin.baseUrl == '/'){
+            wsUrl = url('domain') + ":" + url('port');    
+        } else {
+
+            wsUrl = url('domain', temujin.baseUrl) + ":" + url('port', temujin.baseUrl);    
+            console.log(1,wsUrl)
+        }
+        
+
+        var ws = new WebSocket('ws://'+wsUrl+'/ws/temujin_results?subscribe-broadcast&publish-broadcast');
         ws.onopen = function() {
             console.log("websocket connected");
         };
@@ -236,8 +279,7 @@ var temujin = {};
             //using the deferred api, preparing for async
             var dfd = new jQuery.Deferred();
 
-            $.ajax({
-                method:'post',
+            temujin.post({
                 url : self.url,
                 data : data,
             }).then(function(data){
@@ -291,7 +333,7 @@ var temujin = {};
 
 
     
-    temujin.watch();
+    //temujin.watch();
 
 
 

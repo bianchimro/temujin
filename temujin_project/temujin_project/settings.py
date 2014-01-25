@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
 
     'ws4redis',
+    'corsheaders',
 
     'temujin_core',
     'temujin_image',
@@ -55,6 +56,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
@@ -108,9 +110,13 @@ TEMPLATE_DIRS = (
 )
 
 
-
-###
+### Providers stuff
+#TODO: REFACTOR WITH RESOUCE PROVIDERS LAYER
 TEMUJIN_BASE_FILE_PATH = os.path.join(BASE_DIR, 'file_bucket')
+
+
+#CORS stuff
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 #websocket stuff

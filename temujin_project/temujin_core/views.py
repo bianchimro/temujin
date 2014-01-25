@@ -7,6 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.views.generic import View
 
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import NameSpace
 from .helpers import instance_dict
@@ -42,6 +43,10 @@ class BaseProcessView(View):
     
     arguments = {}
     outputs = {}
+
+    @csrf_exempt
+    def dispatch(self, *args, **kwargs):
+        return super(BaseProcessView, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         """
